@@ -1,3 +1,4 @@
+import argparse
 import requests
 import os
 
@@ -75,12 +76,15 @@ def parse_book_page(soup):
     return book, book_filename, payload
 
 
-if __name__ == '__main__':
+def main():
     books_url = 'http://tululu.org/txt.php'
     books_folder = 'books/'
     img_folder = 'pictures/'
 
-    for id in range(0, 11):
+    parser = createParser()
+    args = parser.parse_args()
+
+    for id in range(args.start_id, args.end_id+1):
         try:
             soup = get_soup(id)
             book, book_filename, payload = parse_book_page(soup)
@@ -91,3 +95,15 @@ if __name__ == '__main__':
             download_file(img_url, img_filename, img_folder, payload)
         except:
             print('error')
+
+
+def createParser():
+    parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org в заданном диапазоне ID.')
+    parser.add_argument('-s', '--start_id', help='ID первой книги для скачивания', type=int, default=1)
+    parser.add_argument('-e', '--end_id', help='ID последней книги для скачивания', type=int, default=10)
+
+    return parser
+
+
+if __name__ == '__main__':
+    main()
