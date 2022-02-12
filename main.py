@@ -22,17 +22,6 @@ def get_soup(id):
     return BeautifulSoup(response.text, 'lxml')
 
 
-def get_book_data(soup):
-    title_text = soup.find('h1').text
-    name, author = str(title_text).split('::')
-    name = name.strip()
-    book_filename = f'{id}. {name}.txt'
-    payload = {
-        'id': str(id)
-    }
-    return book_filename, payload
-
-
 def get_img_data(soup):
     base_url = 'http://tululu.org'
 
@@ -41,25 +30,6 @@ def get_img_data(soup):
     img_filename = unquote(img_url.split('/')[-1])
 
     return img_filename, img_url
-
-
-def get_comments(soup):
-    comments = soup.find_all('div', class_='texts')
-    comments_texts = []
-    for comment in comments:
-        comment_text = comment.find('span').text
-        comments_texts.append(comment_text)
-
-    return comments_texts
-
-
-def get_genres(soup):
-    genres = []
-    genres_tag = soup.find('span', class_='d_book').find_all('a')
-    for genre in genres_tag:
-        genres.append(genre.text)
-
-    return genres
 
 
 def download_file(url, filename, folder, payload):
@@ -75,6 +45,36 @@ def download_file(url, filename, folder, payload):
         file.write(response.content)
 
 
+def parse_book_page(soup):
+    book = {}
+
+    title_text = soup.find('h1').text
+    name, author = str(title_text).split('::')
+    stripped_name = name.strip()
+    stripped_author = author.strip()
+    book_filename = f'{id}. {stripped_name}.txt'
+    payload = {
+        'id': str(id)
+    }
+    book['Заголовок'] = stripped_name
+    book['Автор'] = stripped_author
+
+    genres = []
+    genres_tag = soup.find('span', class_='d_book').find_all('a')
+    for genre in genres_tag:
+        genres.append(genre.text)
+    book['Жанры'] = genres
+
+    comments_texts = []
+    comments = soup.find_all('div', class_='texts')
+    for comment in comments:
+        comment_text = comment.find('span').text
+        comments_texts.append(comment_text)
+    book['Комментарии'] = comments_texts
+
+    return book, book_filename, payload
+
+
 if __name__ == '__main__':
     books_url = 'http://tululu.org/txt.php'
     books_folder = 'books/'
@@ -83,14 +83,9 @@ if __name__ == '__main__':
     for id in range(0, 11):
         try:
             soup = get_soup(id)
-            book_filename, payload = get_book_data(soup)
+            book, book_filename, payload = parse_book_page(soup)
             img_filename, img_url = get_img_data(soup)
-            comments = get_comments(soup)
-            genres = get_genres(soup)
-
-            print(book_filename)
-            pprint(comments)
-            pprint(get_genres(soup))
+            pprint(book)
 
             download_file(books_url, book_filename, books_folder, payload)
             download_file(img_url, img_filename, img_folder, payload)
