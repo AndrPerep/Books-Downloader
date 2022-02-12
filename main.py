@@ -93,8 +93,8 @@ def main():
 
             download_file(books_url, book_filename, books_folder, payload)
             download_file(img_url, img_filename, img_folder, payload)
-        except:
-            print('error')
+        except requests.HTTPError:
+            pass
 
 
 def createParser():
