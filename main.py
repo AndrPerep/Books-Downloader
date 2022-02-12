@@ -52,6 +52,16 @@ def get_comments(soup):
 
     return comments_texts
 
+
+def get_genres(soup):
+    genres = []
+    genres_tag = soup.find('span', class_='d_book').find_all('a')
+    for genre in genres_tag:
+        genres.append(genre.text)
+
+    return genres
+
+
 def download_file(url, filename, folder, payload):
     response = requests.get(url, params=payload, allow_redirects=False)
     response.raise_for_status()
@@ -76,8 +86,11 @@ if __name__ == '__main__':
             book_filename, payload = get_book_data(soup)
             img_filename, img_url = get_img_data(soup)
             comments = get_comments(soup)
+            genres = get_genres(soup)
+
             print(book_filename)
             pprint(comments)
+            pprint(get_genres(soup))
 
             download_file(books_url, book_filename, books_folder, payload)
             download_file(img_url, img_filename, img_folder, payload)
