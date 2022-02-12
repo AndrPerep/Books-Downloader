@@ -4,6 +4,7 @@ import os
 from bs4 import BeautifulSoup
 from pathlib import Path
 from pathvalidate import sanitize_filename
+from pprint import pprint
 from urllib.parse import urljoin
 from urllib.parse import unquote
 
@@ -42,6 +43,15 @@ def get_img_data(soup):
     return img_filename, img_url
 
 
+def get_comments(soup):
+    comments = soup.find_all('div', class_='texts')
+    comments_texts = []
+    for comment in comments:
+        comment_text = comment.find('span').text
+        comments_texts.append(comment_text)
+
+    return comments_texts
+
 def download_file(url, filename, folder, payload):
     response = requests.get(url, params=payload, allow_redirects=False)
     response.raise_for_status()
@@ -65,6 +75,10 @@ if __name__ == '__main__':
             soup = get_soup(id)
             book_filename, payload = get_book_data(soup)
             img_filename, img_url = get_img_data(soup)
+            comments = get_comments(soup)
+            print(book_filename)
+            pprint(comments)
+
             download_file(books_url, book_filename, books_folder, payload)
             download_file(img_url, img_filename, img_folder, payload)
         except:
