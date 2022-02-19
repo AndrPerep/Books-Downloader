@@ -44,9 +44,8 @@ def download_image(url, filename, folder):
     response.raise_for_status()
     check_for_redirect(response)
 
-    sanitazed_filename = sanitize_filename(filename)
     Path(folder).mkdir(parents=True, exist_ok=True)
-    filepath = os.path.join(folder, sanitazed_filename)
+    filepath = os.path.join(folder, filename)
 
     with open(filepath, 'wb') as file:
         file.write(response.content)
@@ -57,7 +56,7 @@ def parse_book_page(soup, book_id):
     name, author = str(title_text).split('::')
     stripped_name = name.strip()
     stripped_author = author.strip()
-    book_filename = f'{book_id}. {stripped_name}.txt'
+    book_filename = sanitize_filename(f'{book_id}. {stripped_name}.txt')
 
     book = {
         'Заголовок': stripped_name,
@@ -80,7 +79,7 @@ def parse_book_page(soup, book_id):
     base_url = 'http://tululu.org'
     img_tag = soup.find('div', class_='bookimage').find('img')['src']
     img_url = urljoin(base_url, img_tag)
-    img_filename = unquote(img_url.split('/')[-1])
+    img_filename = sanitize_filename(unquote(img_url.split('/')[-1]))
 
     return img_filename, img_url
 
