@@ -81,8 +81,6 @@ def parse_book_page(soup, book_id):
     img_url = urljoin(base_url, img_tag)
     img_filename = sanitize_filename(unquote(img_url.split('/')[-1]))
 
-    return img_filename, img_url
-
     return book, book_filename, img_filename, img_url
 
 
