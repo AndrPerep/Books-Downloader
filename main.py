@@ -63,18 +63,11 @@ def parse_book_page(soup, book_id):
         'Автор': stripped_author
     }
 
-    genres = []
     genres_tag = soup.find('span', class_='d_book').find_all('a')
-    for genre in genres_tag:
-        genres.append(genre.text)
-    book['Жанры'] = genres
+    book['Жанры'] = [genre.text for genre in genres_tag]
 
-    comments_texts = []
     comments = soup.find_all('div', class_='texts')
-    for comment in comments:
-        comment_text = comment.find('span').text
-        comments_texts.append(comment_text)
-    book['Комментарии'] = comments_texts
+    book['Комментарии'] = [comment.find('span').text for comment in comments]
 
     base_url = 'http://tululu.org'
     img_tag = soup.find('div', class_='bookimage').find('img')['src']
