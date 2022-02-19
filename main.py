@@ -33,7 +33,20 @@ def get_img_data(soup):
     return img_filename, img_url
 
 
-def download_file(url, filename, folder, payload):
+def download_text(url, filename, folder, payload):
+    response = requests.get(url, params=payload, allow_redirects=False)
+    response.raise_for_status()
+    check_for_redirect(response)
+
+    sanitazed_filename = sanitize_filename(filename)
+    Path(folder).mkdir(parents=True, exist_ok=True)
+    filepath = os.path.join(folder, sanitazed_filename)
+
+    with open(filepath, 'rb') as file:
+        file.write(response.text)
+
+
+def download_image(url, filename, folder, payload):
     response = requests.get(url, params=payload, allow_redirects=False)
     response.raise_for_status()
     check_for_redirect(response)
@@ -100,7 +113,7 @@ def main():
             pprint(book)
 
             download_file(books_url, book_filename, books_folder, payload)
-            download_file(img_url, img_filename, img_folder, payload)
+            download_image(img_url, img_filename, img_folder, payload)
         except requests.HTTPError:
             pass
 
