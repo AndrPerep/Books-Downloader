@@ -39,8 +39,8 @@ def download_text(url, filename, folder, book_id):
         file.write(response.text)
 
 
-def download_image(url, filename, folder, payload):
-    response = requests.get(url, params=payload, allow_redirects=False)
+def download_image(url, filename, folder):
+    response = requests.get(url, allow_redirects=False)
     response.raise_for_status()
     check_for_redirect(response)
 
@@ -110,7 +110,7 @@ def main():
             pprint(book)
 
             download_text(books_url, book_filename, books_folder, book_id)
-            download_image(img_url, img_filename, img_folder, payload)
+            download_image(img_url, img_filename, img_folder)
         except requests.HTTPError:
             pass
 
