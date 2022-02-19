@@ -47,8 +47,6 @@ def download_file(url, filename, folder, payload):
 
 
 def parse_book_page(soup, book_id):
-    book = {}
-
     title_text = soup.find('h1').text
     name, author = str(title_text).split('::')
     stripped_name = name.strip()
@@ -57,8 +55,10 @@ def parse_book_page(soup, book_id):
     payload = {
         'id': str(book_id)
     }
-    book['Заголовок'] = stripped_name
-    book['Автор'] = stripped_author
+    book = {
+        'Заголовок': stripped_name,
+        'Автор': stripped_author
+    }
 
     genres = []
     genres_tag = soup.find('span', class_='d_book').find_all('a')
