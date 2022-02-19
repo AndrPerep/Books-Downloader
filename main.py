@@ -76,12 +76,20 @@ def parse_book_page(soup):
     return book, book_filename, payload
 
 
+def create_parser():
+    parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org в заданном диапазоне ID.')
+    parser.add_argument('-s', '--start_id', help='ID первой книги для скачивания', type=int, default=1)
+    parser.add_argument('-e', '--end_id', help='ID последней книги для скачивания', type=int, default=10)
+
+    return parser
+
+
 def main():
     books_url = 'http://tululu.org/txt.php'
     books_folder = 'books/'
     img_folder = 'pictures/'
 
-    parser = createParser()
+    parser = create_parser()
     args = parser.parse_args()
 
     for id in range(args.start_id, args.end_id+1):
@@ -95,14 +103,6 @@ def main():
             download_file(img_url, img_filename, img_folder, payload)
         except requests.HTTPError:
             pass
-
-
-def createParser():
-    parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org в заданном диапазоне ID.')
-    parser.add_argument('-s', '--start_id', help='ID первой книги для скачивания', type=int, default=1)
-    parser.add_argument('-e', '--end_id', help='ID последней книги для скачивания', type=int, default=10)
-
-    return parser
 
 
 if __name__ == '__main__':
