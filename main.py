@@ -23,17 +23,10 @@ def get_soup(book_id):
     return BeautifulSoup(response.text, 'lxml')
 
 
-def get_img_data(soup):
-    base_url = 'http://tululu.org'
-
-    img_tag = soup.find('div', class_='bookimage').find('img')['src']
-    img_url = urljoin(base_url, img_tag)
-    img_filename = unquote(img_url.split('/')[-1])
-
-    return img_filename, img_url
-
-
-def download_text(url, filename, folder, payload):
+def download_text(url, filename, folder, book_id):
+    payload = {
+        'id': str(book_id)
+    }
     response = requests.get(url, params=payload, allow_redirects=False)
     response.raise_for_status()
     check_for_redirect(response)
@@ -65,9 +58,7 @@ def parse_book_page(soup, book_id):
     stripped_name = name.strip()
     stripped_author = author.strip()
     book_filename = f'{book_id}. {stripped_name}.txt'
-    payload = {
-        'id': str(book_id)
-    }
+
     book = {
         'Заголовок': stripped_name,
         'Автор': stripped_author
@@ -86,7 +77,14 @@ def parse_book_page(soup, book_id):
         comments_texts.append(comment_text)
     book['Комментарии'] = comments_texts
 
-    return book, book_filename, payload
+    base_url = 'http://tululu.org'
+    img_tag = soup.find('div', class_='bookimage').find('img')['src']
+    img_url = urljoin(base_url, img_tag)
+    img_filename = unquote(img_url.split('/')[-1])
+
+    return img_filename, img_url
+
+    return book, book_filename, img_filename, img_url
 
 
 def create_parser():
@@ -108,11 +106,10 @@ def main():
     for book_id in range(args.start_id, args.end_id+1):
         try:
             soup = get_soup(book_id)
-            book, book_filename, payload = parse_book_page(soup, book_id)
-            img_filename, img_url = get_img_data(soup)
+            book, book_filename, img_filename, img_url = parse_book_page(soup, book_id)
             pprint(book)
 
-            download_file(books_url, book_filename, books_folder, payload)
+            download_text(books_url, book_filename, books_folder, book_id)
             download_image(img_url, img_filename, img_folder, payload)
         except requests.HTTPError:
             pass
