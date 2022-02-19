@@ -15,8 +15,8 @@ def check_for_redirect(response):
         raise requests.HTTPError
 
 
-def get_soup(id):
-    url = f'http://tululu.org/b{id}/'
+def get_soup(book_id):
+    url = f'http://tululu.org/b{book_id}/'
     response = requests.get(url, allow_redirects=False)
     response.raise_for_status()
     check_for_redirect(response)
@@ -46,16 +46,16 @@ def download_file(url, filename, folder, payload):
         file.write(response.content)
 
 
-def parse_book_page(soup):
+def parse_book_page(soup, book_id):
     book = {}
 
     title_text = soup.find('h1').text
     name, author = str(title_text).split('::')
     stripped_name = name.strip()
     stripped_author = author.strip()
-    book_filename = f'{id}. {stripped_name}.txt'
+    book_filename = f'{book_id}. {stripped_name}.txt'
     payload = {
-        'id': str(id)
+        'id': str(book_id)
     }
     book['Заголовок'] = stripped_name
     book['Автор'] = stripped_author
@@ -92,10 +92,10 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    for id in range(args.start_id, args.end_id+1):
+    for book_id in range(args.start_id, args.end_id+1):
         try:
-            soup = get_soup(id)
-            book, book_filename, payload = parse_book_page(soup)
+            soup = get_soup(book_id)
+            book, book_filename, payload = parse_book_page(soup, book_id)
             img_filename, img_url = get_img_data(soup)
             pprint(book)
 
