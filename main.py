@@ -60,7 +60,8 @@ def parse_book_page(soup, book_id):
 
     book = {
         'Заголовок': stripped_name,
-        'Автор': stripped_author
+        'Автор': stripped_author,
+        'book_filename': book_filename
     }
 
     genres_tag = soup.find('span', class_='d_book').find_all('a')
@@ -72,9 +73,10 @@ def parse_book_page(soup, book_id):
     base_url = 'http://tululu.org'
     img_tag = soup.find('div', class_='bookimage').find('img')['src']
     img_url = urljoin(base_url, img_tag)
-    img_filename = sanitize_filename(unquote(img_url.split('/')[-1]))
+    book['img_url'] = img_url
+    book['img_filename'] = sanitize_filename(unquote(img_url.split('/')[-1]))
 
-    return book, book_filename, img_filename, img_url
+    return book
 
 
 def create_parser():
@@ -96,11 +98,11 @@ def main():
     for book_id in range(args.start_id, args.end_id+1):
         try:
             soup = get_soup(book_id)
-            book, book_filename, img_filename, img_url = parse_book_page(soup, book_id)
+            book = parse_book_page(soup, book_id)
             pprint(book)
 
-            download_text(books_url, book_filename, books_folder, book_id)
-            download_image(img_url, img_filename, img_folder)
+            download_text(books_url, book['book_filename'], books_folder, book_id)
+            download_image(book['img_url'], book['img_filename'], img_folder)
         except requests.HTTPError:
             pass
 
