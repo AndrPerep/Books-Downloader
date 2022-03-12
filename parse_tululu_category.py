@@ -50,8 +50,6 @@ def parse_book_page(soup, book_id):
     book['img_url'] = img_url
     book['img_filename'] = sanitize_filename(unquote(img_url.split('/')[-1]))
 
-    from pprint import pprint
-    pprint(book)
     return book
 
 
@@ -84,42 +82,54 @@ def download_image(url, filename, folder):
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org')
+    parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org из определённой категории')
+    parser.add_argument('-c', '--category', help='Категория книг. Можно найти в адресе страницы категории — например, "l55" или "biznes"', type=str, default='l55')
     parser.add_argument('-s', '--start_page', help='ID первой страницы для скачивания', type=int, default=1)
     parser.add_argument('-e', '--end_page', help='ID последней страницы для скачивания', type=int, default=10)
+    parser.add_argument('-df', '--dest_folder', help='путь к каталогу с результатам парсинга: картинкам, книгам, информации', type=str, default='./')
+    parser.add_argument('--skip_txt', help='не скачивать книги', action='store_const', const=False)
+    parser.add_argument('--skip_imgs', help='не скачивать обложки книг', action='store_const', const=False)
+    parser.add_argument('-j', '--json_path', help='путь к .json файлу с результатами')
 
     return parser
 
 
 def main():
-    books = []
-    books_folder = 'books/'
-    img_folder = 'pictures/'
-    category_page_url = 'http://tululu.org/l55/'
-
     parser = create_parser()
     args = parser.parse_args()
 
+    books = []
+    dest_folder = args.dest_folder
+    Path(dest_folder).mkdir(parents=True, exist_ok=True)
+    books_folder = os.path.join(dest_folder, 'books/')
+    img_folder = os.path.join(dest_folder, 'pictures/')
+    category_url = f'http://tululu.org/{args.category}/'
+
+
     for page in range(args.start_page, args.end_page+1):
-        category_page_base_url = f'http://tululu.org/l55/{page}'
-        category_page_soup = get_soup(category_page_url)
+        print('page', page)
+        category_page_base_url = f'http://tululu.org/{args.category}/{page}'
+        category_page_soup = get_soup(category_url)
         tags = category_page_soup.find_all('table', class_='d_book')
         for tag in tags:
             id_selector = 'a'
             book_id = tag.select_one(id_selector)['href']
             book_url = urljoin(category_page_base_url, book_id)
 
-            download_text(book_url, book['book_filename'], books_folder, book_id)
-            download_image(book['img_url'], book['img_filename'], img_folder)
-
             try:
                 book_page_soup = get_soup(book_url)
                 book = parse_book_page(book_page_soup, book_id)
                 books.append(book)
+
+                if not args.skip_txt:
+                    download_text(book_url, book['book_filename'], books_folder, book_id)
+                if not args.skip_imgs:
+                    download_image(book['img_url'], book['img_filename'], img_folder)
             except requests.HTTPError:
                 pass
 
-    with open("books.json", "w") as file:
+    json_path = os.path.join(args.json_path, 'books.json')
+    with open(json_path, 'w', encoding='utf8') as file:
         json.dump(books, file, ensure_ascii=False)
 
 
