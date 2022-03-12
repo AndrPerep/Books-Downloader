@@ -1,6 +1,8 @@
+import argparse
 import requests
 import os
 import json
+
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from urllib.parse import unquote
@@ -81,13 +83,24 @@ def download_image(url, filename, folder):
         file.write(response.content)
 
 
+def create_parser():
+    parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org')
+    parser.add_argument('-s', '--start_page', help='ID первой страницы для скачивания', type=int, default=1)
+    parser.add_argument('-e', '--end_page', help='ID последней страницы для скачивания', type=int, default=10)
+
+    return parser
+
+
 def main():
     books = []
     books_folder = 'books/'
     img_folder = 'pictures/'
     category_page_url = 'http://tululu.org/l55/'
 
-    for page in range(1, 2):  # 11):
+    parser = create_parser()
+    args = parser.parse_args()
+
+    for page in range(args.start_page, args.end_page+1):
         category_page_base_url = f'http://tululu.org/l55/{page}'
         category_page_soup = get_soup(category_page_url)
         tags = category_page_soup.find_all('table', class_='d_book')
@@ -96,12 +109,15 @@ def main():
             book_id = tag.select_one(id_selector)['href']
             book_url = urljoin(category_page_base_url, book_id)
 
-            book_page_soup = get_soup(book_url)
-            book = parse_book_page(book_page_soup, book_id)
-            books.append(book)
+            download_text(book_url, book['book_filename'], books_folder, book_id)
+            download_image(book['img_url'], book['img_filename'], img_folder)
 
-            #download_text(book_url, book['book_filename'], books_folder, book_id)
-            #download_image(book['img_url'], book['img_filename'], img_folder)
+            try:
+                book_page_soup = get_soup(book_url)
+                book = parse_book_page(book_page_soup, book_id)
+                books.append(book)
+            except requests.HTTPError:
+                pass
 
     with open("books.json", "w") as file:
         json.dump(books, file, ensure_ascii=False)
