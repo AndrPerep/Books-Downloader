@@ -88,9 +88,9 @@ def create_parser():
     parser.add_argument('-s', '--start_page', help='ID первой страницы для скачивания', type=int, default=1)
     parser.add_argument('-e', '--end_page', help='ID последней страницы для скачивания', type=int, default=10)
     parser.add_argument('-df', '--dest_folder', help='путь к каталогу с результатам парсинга: картинкам, книгам, информации', type=str, default='./')
-    parser.add_argument('--skip_txt', help='не скачивать книги', action='store_const', const=False)
-    parser.add_argument('--skip_imgs', help='не скачивать обложки книг', action='store_const', const=False)
-    parser.add_argument('-j', '--json_path', help='путь к .json файлу с результатами')
+    parser.add_argument('--skip_txt', help='не скачивать книги', action='store_const', const=True, default=False)
+    parser.add_argument('--skip_imgs', help='не скачивать обложки книг', action='store_const', const=True, default=False)
+    parser.add_argument('-j', '--json_path', help='путь к .json файлу с результатами', type=str, default='./')
 
     return parser
 
@@ -105,7 +105,6 @@ def main():
     books_folder = os.path.join(dest_folder, 'books/')
     img_folder = os.path.join(dest_folder, 'pictures/')
     category_url = f'http://tululu.org/{args.category}/'
-
 
     for page in (args.start_page, args.end_page+1):
         category_page_base_url = f'http://tululu.org/{args.category}/{page}'
