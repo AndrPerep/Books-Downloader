@@ -53,7 +53,8 @@ def parse_book_page(soup, book_id):
     return book
 
 
-def download_text(url, filename, folder, book_id):
+def download_text(filename, folder, book_id):
+    url = 'http://tululu.org/txt.php'
     payload = {
         'id': str(book_id)
     }
@@ -106,8 +107,7 @@ def main():
     category_url = f'http://tululu.org/{args.category}/'
 
 
-    for page in range(args.start_page, args.end_page+1):
-        print('page', page)
+    for page in (args.start_page, args.end_page+1):
         category_page_base_url = f'http://tululu.org/{args.category}/{page}'
         category_page_soup = get_soup(category_url)
         tags = category_page_soup.find_all('table', class_='d_book')
@@ -122,7 +122,7 @@ def main():
                 books.append(book)
 
                 if not args.skip_txt:
-                    download_text(book_url, book['book_filename'], books_folder, book_id)
+                    download_text(book['book_filename'], books_folder, book_id)
                 if not args.skip_imgs:
                     download_image(book['img_url'], book['img_filename'], img_folder)
             except requests.HTTPError:
