@@ -21,7 +21,8 @@ def get_soup(url):
 
 
 def parse_book_page(soup, book_id):
-    title_text = soup.find('h1').text
+    title_selector = 'h1'
+    title_text = soup.select_one(title_selector).text
     name, author = str(title_text).split('::')
     stripped_name = name.strip()
     stripped_author = author.strip()
@@ -33,18 +34,22 @@ def parse_book_page(soup, book_id):
         'book_filename': book_filename
     }
 
-    genres_tag = soup.find('span', class_='d_book').find_all('a')
+    genres_selector = 'span.d_book a'
+    genres_tag = soup.select(genres_selector)
     book['Жанры'] = [genre.text for genre in genres_tag]
 
     comments = soup.find_all('div', class_='texts')
     book['Комментарии'] = [comment.find('span').text for comment in comments]
 
     base_url = 'http://tululu.org'
-    img_tag = soup.find('div', class_='bookimage').find('img')['src']
+    img_selector = 'div.bookimage img'
+    img_tag = soup.select_one(img_selector)['src']
     img_url = urljoin(base_url, img_tag)
     book['img_url'] = img_url
     book['img_filename'] = sanitize_filename(unquote(img_url.split('/')[-1]))
 
+    from pprint import pprint
+    pprint(book)
     return book
 
 
@@ -82,20 +87,21 @@ def main():
     img_folder = 'pictures/'
     category_page_url = 'http://tululu.org/l55/'
 
-    for page in range(1, 11):
+    for page in range(1, 2):  # 11):
         category_page_base_url = f'http://tululu.org/l55/{page}'
         category_page_soup = get_soup(category_page_url)
         tags = category_page_soup.find_all('table', class_='d_book')
         for tag in tags:
-            book_id = tag.find('a')['href']
+            id_selector = 'a'
+            book_id = tag.select_one(id_selector)['href']
             book_url = urljoin(category_page_base_url, book_id)
 
             book_page_soup = get_soup(book_url)
             book = parse_book_page(book_page_soup, book_id)
             books.append(book)
 
-            download_text(book_url, book['book_filename'], books_folder, book_id)
-            download_image(book['img_url'], book['img_filename'], img_folder)
+            #download_text(book_url, book['book_filename'], books_folder, book_id)
+            #download_image(book['img_url'], book['img_filename'], img_folder)
 
     with open("books.json", "w") as file:
         json.dump(books, file, ensure_ascii=False)
