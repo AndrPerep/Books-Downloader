@@ -1,12 +1,12 @@
 import argparse
 import requests
 import os
-import json
 
 from parse_tululu import download_image
 from parse_tululu import download_text
 from parse_tululu import get_soup
 from parse_tululu import parse_book_page
+from parse_tululu import save_json
 from urllib.parse import urljoin
 from pathlib import Path
 
@@ -57,9 +57,7 @@ def main():
             except requests.HTTPError:
                 pass
 
-    json_path = os.path.join(args.json_path, 'books.json')
-    with open(json_path, 'w', encoding='utf8') as file:
-        json.dump(books, file, ensure_ascii=False)
+    save_json(books, args.json_path)
 
 
 if __name__ == '__main__':

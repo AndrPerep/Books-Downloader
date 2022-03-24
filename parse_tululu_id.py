@@ -5,7 +5,7 @@ from parse_tululu import download_image
 from parse_tululu import download_text
 from parse_tululu import get_soup
 from parse_tululu import parse_book_page
-from pprint import pprint
+from parse_tululu import save_json
 
 
 def create_parser():
@@ -17,24 +17,26 @@ def create_parser():
 
 
 def main():
+    parser = create_parser()
+    args = parser.parse_args()
+
+    books = []
     txt_base_url = 'http://tululu.org/txt.php'
     books_folder = 'books/'
     img_folder = 'pictures/'
-
-    parser = create_parser()
-    args = parser.parse_args()
 
     for book_id in range(args.start_id, args.end_id+1):
         try:
             url = f'http://tululu.org/b{book_id}/'
             soup = get_soup(url)
             book = parse_book_page(soup, book_id)
-            pprint(book)
+            books.append(book)
 
             download_text(txt_base_url, book['book_filename'], books_folder, book_id)
             download_image(book['img_url'], book['img_filename'], img_folder)
         except requests.HTTPError:
             pass
+    save_json(books)
 
 
 if __name__ == '__main__':

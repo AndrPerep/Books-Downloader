@@ -1,5 +1,6 @@
 import requests
 import os
+import json
 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -9,12 +10,13 @@ from pathlib import Path
 
 
 def check_for_redirect(response):
-    if response.status_code in (301, 302):
-        raise requests.HTTPError
+    for i in response.history:
+        if i.status_code == 302:
+            raise requests.HTTPError
 
 
 def get_soup(url):
-    response = requests.get(url, allow_redirects=False)
+    response = requests.get(url, allow_redirects=True)
     response.raise_for_status()
     check_for_redirect(response)
     return BeautifulSoup(response.text, 'lxml')
@@ -23,6 +25,7 @@ def get_soup(url):
 def parse_book_page(soup, book_id):
     title_selector = 'h1'
     title_text = soup.select_one(title_selector).text
+    print(title_text)
     name, author = str(title_text).split('::')
     stripped_name = name.strip()
     stripped_author = author.strip()
@@ -77,3 +80,9 @@ def download_image(url, filename, folder):
 
     with open(filepath, 'wb') as file:
         file.write(response.content)
+
+
+def save_json(books, json_path='./'):
+    json_path = os.path.join(json_path, 'books.json')
+    with open(json_path, 'w', encoding='utf8') as file:
+        json.dump(books, file, ensure_ascii=False)
