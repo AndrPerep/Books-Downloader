@@ -26,7 +26,7 @@ def parse_book_page(soup, book_id):
     title_selector = 'h1'
     title_text = soup.select_one(title_selector).text
     print(title_text)
-    name, author = str(title_text).split('::')
+    name, author = title_text.split('::')
     stripped_name = name.strip()
     stripped_author = author.strip()
     book_filename = sanitize_filename(f'{book_id}. {stripped_name}.txt')
@@ -56,7 +56,7 @@ def parse_book_page(soup, book_id):
 
 def download_text(url, filename, folder, book_id):
     payload = {
-        'id': str(book_id)
+        'id': book_id
     }
     response = requests.get(url, params=payload, allow_redirects=False)
     response.raise_for_status()
