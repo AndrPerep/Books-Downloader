@@ -39,10 +39,10 @@ def main():
     for page in (args.start_page, args.end_page+1):
         category_page_base_url = f'http://tululu.org/{args.category}/{page}'
         category_page_soup = get_soup(category_url)
-        tags = category_page_soup.find_all('table', class_='d_book')
-        for tag in tags:
+        book_tags = category_page_soup.find_all('table', class_='d_book')
+        for book_tag in book_tags:
             id_selector = 'a'
-            book_id = tag.select_one(id_selector)['href']
+            book_id = book_tag.select_one(id_selector)['href']
             book_url = urljoin(category_page_base_url, book_id)
 
             try:
