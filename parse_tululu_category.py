@@ -50,7 +50,7 @@ def main():
 
     for page in (args.start_page, last_page+1):
         category_page_url = f'http://tululu.org/{args.category}/{page}/'
-        category_page_soup = get_soup(category_url)
+        category_page_soup = get_soup(category_page_url)
         book_tags = category_page_soup.find_all('table', class_='d_book')
         for book_tag in book_tags:
             id_selector = 'a'
