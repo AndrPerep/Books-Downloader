@@ -21,13 +21,13 @@ def main():
     args = parser.parse_args()
 
     books = []
-    txt_base_url = 'http://tululu.org/txt.php'
+    txt_base_url = 'https://tululu.org/txt.php'
     books_folder = 'books/'
     img_folder = 'pictures/'
 
     for book_id in range(args.start_id, args.end_id+1):
         try:
-            url = f'http://tululu.org/b{book_id}/'
+            url = f'https://tululu.org/b{book_id}/'
             soup = get_soup(url)
             book = parse_book_page(soup, book_id)
             books.append(book)

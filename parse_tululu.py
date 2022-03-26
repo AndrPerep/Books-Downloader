@@ -10,9 +10,8 @@ from pathlib import Path
 
 
 def check_for_redirect(response):
-    for i in response.history:
-        if i.status_code == 302:
-            raise requests.HTTPError
+    if response.history:
+        raise requests.HTTPError
 
 
 def get_soup(url):
@@ -25,7 +24,6 @@ def get_soup(url):
 def parse_book_page(soup, book_id):
     title_selector = 'h1'
     title_text = soup.select_one(title_selector).text
-    print(title_text)
     name, author = title_text.split('::')
     stripped_name = name.strip()
     stripped_author = author.strip()
@@ -44,7 +42,7 @@ def parse_book_page(soup, book_id):
     comments = soup.find_all('div', class_='texts')
     book['Комментарии'] = [comment.find('span').text for comment in comments]
 
-    base_url = 'http://tululu.org'
+    base_url = 'https://tululu.org'
     img_selector = 'div.bookimage img'
     img_tag = soup.select_one(img_selector)['src']
     img_url = urljoin(base_url, img_tag)

@@ -18,11 +18,10 @@ def get_last_page(soup):
     return int(last_page)
 
 
-def create_parser():
+def create_parser(category_url):
     parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org из определённой категории')
-    parser.add_argument('-c', '--category', help='Категория книг. Можно найти в адресе страницы категории — например, "l55" или "biznes"', type=str, default='l55')
     parser.add_argument('-s', '--start_page', help='ID первой страницы для скачивания', type=int, default=1)
-    parser.add_argument('-e', '--end_page', help='ID последней страницы для скачивания', type=int)
+    parser.add_argument('-e', '--end_page', help='ID последней страницы для скачивания', type=int, default=get_last_page(get_soup(category_url)))
     parser.add_argument('-df', '--dest_folder', help='путь к каталогу с результатам парсинга: картинкам, книгам, информации', type=str, default='./')
     parser.add_argument('--skip_txt', help='не скачивать книги', action='store_const', const=True, default=False)
     parser.add_argument('--skip_imgs', help='не скачивать обложки книг', action='store_const', const=True, default=False)
@@ -32,7 +31,8 @@ def create_parser():
 
 
 def main():
-    parser = create_parser()
+    category_url = f'https://tululu.org/l55/'
+    parser = create_parser(category_url)
     args = parser.parse_args()
 
     books = []
@@ -40,16 +40,10 @@ def main():
     Path(dest_folder).mkdir(parents=True, exist_ok=True)
     books_folder = os.path.join(dest_folder, 'books/')
     img_folder = os.path.join(dest_folder, 'pictures/')
-    category_url = f'http://tululu.org/{args.category}/'
-    txt_base_url = 'http://tululu.org/txt.php'
+    txt_base_url = 'https://tululu.org/txt.php'
 
-    if args.end_page:
-        last_page = args.end_page
-    else:
-        last_page = get_last_page(get_soup(category_url))
-
-    for page in (args.start_page, last_page+1):
-        category_page_url = f'http://tululu.org/{args.category}/{page}/'
+    for page in (args.start_page, args.end_page+1):
+        category_page_url = urljoin(category_url, str(page))
         category_page_soup = get_soup(category_page_url)
         book_selector = 'table.d_book'
         book_tags = category_page_soup.select(book_selector)
