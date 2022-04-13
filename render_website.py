@@ -1,7 +1,9 @@
 import json
+import os
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
+
 
 
 def on_reload():
@@ -13,9 +15,14 @@ def on_reload():
 
 
 if __name__ == '__main__':
+    img_folder = 'pictures/'
+
     with open('books.json', 'r', encoding='utf-8') as books_file:
         books_json = books_file.read()
     books = json.loads(books_json)
+
+    for book in books:
+        book['img_filepath'] = os.path.join(img_folder, book['img_filename'])
 
     env = Environment(
         loader=FileSystemLoader('.'),
