@@ -18,14 +18,14 @@
         <div class="col">
           <div class="card mb-3" style="max-width: 540px;">
             <div class="row no-gutters">
-              <div class="  col-md-4">
+              <div class="col-md-4">
                 <img src="{{ book['img_filepath'] }}" class="card-img" alt="book cover">
               </div>
               <div class="col-md-8">
                 <div class="card-body">
                   <h5 class="card-title">{{ book['Заголовок'] }}</h5>
                   <p class="card-text">{{ book['Автор'] }}</p>
-                  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                  <a href="{{ book['txt_filepath'] }}" target="_blank" rel="noopener noreferrer">Читать</a>
                 </div>
               </div>
             </div>

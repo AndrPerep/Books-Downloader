@@ -12,10 +12,11 @@ def on_reload():
     rendered_page = template.render(books=grouped_books)
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
-    print("Site rebuilt")
+    print('Site rebuilt')
 
 
 if __name__ == '__main__':
+    txt_folder = 'books/'
     img_folder = 'pictures/'
 
     with open('books.json', 'r', encoding='utf-8') as books_file:
@@ -24,6 +25,7 @@ if __name__ == '__main__':
 
     for book in books:
         book['img_filepath'] = os.path.join(img_folder, book['img_filename'])
+        book['txt_filepath'] = os.path.join(txt_folder, book['book_filename'])
     grouped_books = list(chunked(books, 2))
 
     env = Environment(
