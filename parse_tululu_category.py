@@ -79,8 +79,9 @@ def main():
         book_tags = category_page_soup.select(book_selector)
         for book_tag in book_tags:
             id_selector = 'a'
-            book_id = book_tag.select_one(id_selector)['href']
-            book_url = urljoin(category_page_url, book_id)
+            book_path = book_tag.select_one(id_selector)['href']
+            book_id = book_path.strip('/b')
+            book_url = urljoin(category_page_url, book_path)
 
             try:
                 book_page_soup = get_soup(book_url)

@@ -64,7 +64,7 @@ def download_text(url, filename, folder, book_id):
     Path(folder).mkdir(parents=True, exist_ok=True)
     filepath = os.path.join(folder, sanitazed_filename)
 
-    with open(filepath, 'w') as file:
+    with open(filepath, 'w', encoding='utf-8') as file:
         file.write(response.text)
 
 
