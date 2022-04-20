@@ -8,23 +8,23 @@ from more_itertools import chunked
 
 
 def on_reload():
-    page_grouped_books = list(chunked(books, books_on_page_num))
-    last_page = ceil(len(books)/books_on_page_num)
-    page_quantity = []
+    page_grouped_books = list(chunked(books, page_books_num))
+    last_page = ceil(len(books)/page_books_num)
+    pages = []
     for page_number in range(1, last_page+1):
-        page_quantity.append(page_number)
+        pages.append(page_number)
 
-    for page_index, books_on_page in enumerate(page_grouped_books, start=1):
+    for page_index, page_books in enumerate(page_grouped_books, start=1):
         page = page_index
         page_filename = f'index{page}.html'
         page_path = os.path.join(pages_folder, page_filename)
 
-        col_grouped_books = list(chunked(books_on_page, 2))
+        col_grouped_books = list(chunked(page_books, 2))
         template = env.get_template('template.html')
         rendered_page = template.render(
             books=col_grouped_books,
             current_page=page,
-            page_quantity=page_quantity,
+            pages=pages,
             page_filename=page_filename,
             last_page=last_page,
             prev_page=f'index{page-1}.html',
@@ -39,15 +39,23 @@ if __name__ == '__main__':
     txt_folder = 'books/'
     img_folder = 'pictures/'
     pages_folder = 'pages/'
-    books_on_page_num = 10
+    page_books_num = 10
     os.makedirs(pages_folder, exist_ok=True)
 
     with open('books.json', 'r', encoding='utf-8') as books_file:
         books = json.load(books_file)
 
     for book in books:
-        book['img_filepath'] = os.path.join('../', img_folder, book['img_filename'])
-        book['txt_filepath'] = os.path.join('../', txt_folder, book['book_filename'])
+        book['img_filepath'] = os.path.join(
+            '../',
+            img_folder,
+            book['img_filename']
+        )
+        book['txt_filepath'] = os.path.join(
+            '../',
+            txt_folder,
+            book['book_filename']
+        )
 
     env = Environment(
         loader=FileSystemLoader('.'),

@@ -20,12 +20,42 @@ def get_last_page(soup):
 
 def create_parser(category_url):
     parser = argparse.ArgumentParser(description='Скачивает книги с сайта tululu.org из определённой категории')
-    parser.add_argument('-s', '--start_page', help='ID первой страницы для скачивания', type=int, default=1)
-    parser.add_argument('-e', '--end_page', help='ID последней страницы для скачивания', type=int, default=get_last_page(get_soup(category_url)))
-    parser.add_argument('-df', '--dest_folder', help='путь к каталогу с результатам парсинга: картинкам, книгам, информации', type=str, default='./')
-    parser.add_argument('--skip_txt', help='не скачивать книги', action='store_const', const=True, default=False)
-    parser.add_argument('--skip_imgs', help='не скачивать обложки книг', action='store_const', const=True, default=False)
-    parser.add_argument('-j', '--json_path', help='путь к .json файлу с результатами', type=str, default='./')
+    parser.add_argument('-s',
+                        '--start_page',
+                        help='ID первой страницы для скачивания',
+                        type=int,
+                        default=1
+                        )
+    parser.add_argument('-e',
+                        '--end_page',
+                        help='ID последней страницы для скачивания',
+                        type=int,
+                        default=get_last_page(get_soup(category_url))
+                        )
+    parser.add_argument('-df',
+                        '--dest_folder',
+                        help='путь к каталогу с результатам парсинга: картинкам, книгам, информации',
+                        type=str,
+                        default='./'
+                        )
+    parser.add_argument('--skip_txt',
+                        help='не скачивать книги',
+                        action='store_const',
+                        const=True,
+                        default=False
+                        )
+    parser.add_argument('--skip_imgs',
+                        help='не скачивать обложки книг',
+                        action='store_const',
+                        const=True,
+                        default=False
+                        )
+    parser.add_argument('-j',
+                        '--json_path',
+                        help='путь к .json файлу с результатами',
+                        type=str,
+                        default='./'
+                        )
 
     return parser
 

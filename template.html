@@ -21,7 +21,7 @@
           {% else %}
             <li class="page-item"><a class="page-link" href="{{ prev_page|urlencode }}">Назад</a></li>
           {% endif %}
-          {% for page in page_quantity %}
+          {% for page in pages %}
             {% if page == current_page %}
               <li class="page-item active"><span class="page-link">{{ page }}</span></li>
             {% else %}
