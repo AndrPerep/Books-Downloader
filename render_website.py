@@ -14,8 +14,8 @@ def on_reload():
     for page_number in range(1, last_page+1):
         page_quantity.append(page_number)
 
-    for page_index, books_on_page in enumerate(page_grouped_books):
-        page = page_index+1
+    for page_index, books_on_page in enumerate(page_grouped_books, start=1):
+        page = page_index
         page_filename = f'index{page}.html'
         page_path = os.path.join(pages_folder, page_filename)
 
@@ -43,8 +43,7 @@ if __name__ == '__main__':
     os.makedirs(pages_folder, exist_ok=True)
 
     with open('books.json', 'r', encoding='utf-8') as books_file:
-        books_json = books_file.read()
-    books = json.loads(books_json)
+        books = json.load(books_file)
 
     for book in books:
         book['img_filepath'] = os.path.join('../', img_folder, book['img_filename'])
